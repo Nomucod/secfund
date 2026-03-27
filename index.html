@@ -24,7 +24,7 @@
         }
         .container { max-width: 850px; width: 95%; margin: auto; }
         
-        /* 網頁端預覽樣式 */
+        /* 網頁端響應式預覽樣式 */
         .fund-name { font-size: 1rem; font-weight: bold; line-height: 1.4; }
         .fund-sub-info { font-size: 0.85rem; color: #6c757d; margin-top: 3px; }
         .code-highlight { font-weight: bold; color: var(--danger-red); font-family: 'Consolas', monospace; font-size: 1.15rem; line-height: 1.2; }
@@ -35,16 +35,18 @@
             .code-highlight { font-size: 1rem; }
         }
 
-        /* 📸 截圖專用巨大化樣式 (樣式分離) */
+        /* ----------------------------------------- */
+        /* 📸 截圖輸出專用巨大化樣式 (所有的截圖統一適用) */
+        /* ----------------------------------------- */
         .screenshot-mode h6.title-label { font-size: 42px !important; font-weight: bold !important; padding: 20px !important; }
         .screenshot-mode .fund-name { font-size: 40px !important; font-weight: bold !important; line-height: 1.3 !important; }
         .screenshot-mode .fund-sub-info { font-size: 2.2rem !important; font-weight: bold !important; line-height: 1.4 !important; color: #555 !important; }
         .screenshot-mode .code-highlight { font-size: 2.6rem !important; font-weight: bold !important; line-height: 1.2 !important; }
         .screenshot-mode .screenshot-footer { font-size: 1.6rem !important; font-weight: bold !important; padding-top: 20px !important; }
-        .screenshot-mode .code-col { width: 350px !important; } 
+        .screenshot-mode .code-col { width: 350px !important; } /* 代號加大後進一步放寬欄位 */
         .screenshot-mode table th { font-size: 24px !important; font-weight: bold !important; }
 
-        /* 表格設定 */
+        /* 通用表格設定 */
         .table-custom { width: 100%; border-collapse: collapse; background: white; table-layout: auto; }
         .table-custom thead th { background: var(--primary-blue); color: white; padding: 10px 8px; white-space: nowrap; }
         .table-custom tbody td { padding: 12px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
@@ -104,14 +106,14 @@
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyOn"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureOn', '境內基金')">📸 拍照截圖 (智慧自動分頁)</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureOn', '境內基金', 10)">📸 拍照截圖 (10筆/頁)</button>
             </div>
         </div>
 
         <div class="tab-pane fade" id="gsam-pane" role="tabpanel">
-            <div class="section-header"><span>GSAM查詢</span><button class="btn btn-sm btn-outline-primary" onclick="togglePinSettings()">⚙️ 釘選</button></div>
+            <div class="section-header"><span>GSAM查詢系統</span><button class="btn btn-sm btn-outline-primary" onclick="togglePinSettings()">⚙️ 釘選</button></div>
             <select id="bankGsam" class="form-select mb-3"><option value="">-- 選擇銷售機構 --</option></select>
-            <div class="row g-1 mb-3" id="filtersGsam">
+            <div class="row g-1 mb-3">
                 <div class="col-3"><div class="form-check"><input class="form-check-input gsam-filter" type="checkbox" id="gsamPre"><label class="form-check-label">前收</label></div></div>
                 <div class="col-3"><div class="form-check"><input class="form-check-input gsam-filter" type="checkbox" id="gsamPost"><label class="form-check-label">後收</label></div></div>
                 <div class="col-3"><div class="form-check"><input class="form-check-input gsam-filter" type="checkbox" id="gsamAcc"><label class="form-check-label">累積</label></div></div>
@@ -131,7 +133,7 @@
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyGsam"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureGsam', 'GSAM查詢')">📸 拍照截圖</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureGsam', 'GSAM查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
             </div>
         </div>
 
@@ -147,14 +149,14 @@
                 <div class="col-4"><div class="form-check"><input class="form-check-input sicav-filter" type="checkbox" id="sicavJPYH"><label class="form-check-label">日圓避險</label></div></div>
                 <div class="col-4"><div class="form-check"><input class="form-check-input sicav-filter" type="checkbox" id="sicavAUDH"><label class="form-check-label">澳幣避險</label></div></div>
             </div>
-            <div id="listSicav" class="list-container">載入資料中...</div>
+            <div id="listSicav" class="list-container">載入中...</div>
             <div id="areaSicav" style="display:none;">
                 <div id="captureSicav" style="background: white; padding: 15px;">
                     <h6 class="text-center fw-bold mb-2 p-2 rounded title-label" id="titleSicav" style="color: var(--primary-blue); background: var(--accent-blue);"></h6>
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodySicav"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureSicav', 'SICAV查詢')">📸 拍照截圖</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureSicav', 'SICAV查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
             </div>
         </div>
 
@@ -172,14 +174,14 @@
                 <div class="col-4"><div class="form-check"><input class="form-check-input ninetyone-filter" type="checkbox" id="ninetyoneAUDH"><label class="form-check-label">澳幣避險IRD</label></div></div>
                 <div class="col-4"><div class="form-check"><input class="form-check-input ninetyone-filter" type="checkbox" id="ninetyoneZARH"><label class="form-check-label">南非幣避險IRD</label></div></div>
             </div>
-            <div id="listNinetyone" class="list-container">載入資料中...</div>
+            <div id="listNinetyone" class="list-container">載入中...</div>
             <div id="areaNinetyone" style="display:none;">
                 <div id="captureNinetyone" style="background: white; padding: 15px;">
                     <h6 class="text-center fw-bold mb-2 p-2 rounded title-label" id="titleNinetyone" style="color: var(--primary-blue); background: var(--accent-blue);"></h6>
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyNinetyone"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureNinetyone', '晉達查詢')">📸 拍照截圖</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureNinetyone', '晉達查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
             </div>
         </div>
 
@@ -199,14 +201,14 @@
                 <div class="col-3"><div class="form-check"><input class="form-check-input ireland-filter" type="checkbox" id="irelandAUD"><label class="form-check-label">澳幣</label></div></div>
                 <div class="col-3"><div class="form-check"><input class="form-check-input ireland-filter" type="checkbox" id="irelandAUDH"><label class="form-check-label">澳幣避險</label></div></div>
             </div>
-            <div id="listIreland" class="list-container">載入資料中...</div>
+            <div id="listIreland" class="list-container">載入中...</div>
             <div id="areaIreland" style="display:none;">
                 <div id="captureIreland" style="background: white; padding: 15px;">
                     <h6 class="text-center fw-bold mb-2 p-2 rounded title-label" id="titleIreland" style="color: var(--primary-blue); background: var(--accent-blue);"></h6>
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyIreland"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureIreland', '愛爾蘭查詢')">📸 拍照截圖</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureIreland', '愛爾蘭查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
             </div>
         </div>
 
@@ -226,14 +228,14 @@
                 <div class="col-3"><div class="form-check"><input class="form-check-input janus-filter" type="checkbox" id="janusEURH"><label class="form-check-label">歐元避險</label></div></div>
                 <div class="col-3"><div class="form-check"><input class="form-check-input janus-filter" type="checkbox" id="janusCADH"><label class="form-check-label">加幣避險</label></div></div>
             </div>
-            <div id="listJanus" class="list-container">載入資料中...</div>
+            <div id="listJanus" class="list-container">載入中...</div>
             <div id="areaJanus" style="display:none;">
                 <div id="captureJanus" style="background: white; padding: 15px;">
                     <h6 class="text-center fw-bold mb-2 p-2 rounded title-label" id="titleJanus" style="color: var(--primary-blue); background: var(--accent-blue);"></h6>
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyJanus"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureJanus', '駿利查詢')">📸 拍照截圖</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureJanus', '駿利查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
             </div>
         </div>
     </div>
@@ -349,7 +351,7 @@
                 if (f.div && ["前收年配", "前收穩定資本月配息"].includes(type)) payoutMatch = true;
             } else {
                 if (f.acc && type.includes("累積")) payoutMatch = true;
-                if (f.div && (type.includes("配息") || type.includes("月配") || type.includes("季配") || type.includes("年配") || type.includes("半年配"))) payoutMatch = true;
+                if (f.div && (type.includes("配息") || type.includes("月配") || type.includes("季配") || type.includes("年配"))) payoutMatch = true;
             }
         }
 
@@ -357,7 +359,6 @@
         const activeCurrs = Object.keys(f).filter(k => f[k] && !['tisa', 'pre', 'post', 'acc', 'div'].includes(k));
         if (activeCurrs.length > 0) {
             currMatch = false;
-            // 幣別聯集邏輯... (與前一版相同)
             if (suffix === 'Janus') {
                 if (f.jpy && curr === "日圓") currMatch = true;
                 if (f.usd && curr === "美元") currMatch = true;
@@ -434,76 +435,27 @@
         filters.forEach(el => el.onchange = update);
     }
 
-    // --- 📸 智慧截圖：高度偵測分頁 + 下載佇列 ---
-    async function handleScreenshot(elId, name) {
+    async function handleScreenshot(elId, name, pageSize) {
         const el = document.getElementById(elId);
-        const allRows = Array.from(el.querySelectorAll('tbody tr'));
-        const originalWidth = el.style.width;
-
-        // 1. 切換到截圖模式 (樣式巨大化)
+        const rows = Array.from(el.querySelectorAll('tbody tr'));
         el.classList.add('screenshot-mode');
-        el.style.width = "1050px"; 
-
-        // 2. 智慧分頁核心邏輯：偵測高度
-        const pages = [];
-        let currentPageRows = [];
-        let currentHeight = 0;
-        const maxHeight = 1000; // 每張圖片的高度限制 (px)
-
-        // 暫時隱藏所有列來逐一測量
-        allRows.forEach(r => r.style.display = 'none');
-
-        for (let row of allRows) {
-            row.style.display = ''; // 顯示一行
-            let rowHeight = row.offsetHeight; // 測量高度
-            
-            if (currentHeight + rowHeight > maxHeight && currentPageRows.length > 0) {
-                // 超高了，存為一頁
-                pages.push([...currentPageRows]);
-                currentPageRows = [row];
-                currentHeight = rowHeight;
-            } else {
-                currentPageRows.push(row);
-                currentHeight += rowHeight;
+        const ow = el.style.width; el.style.width = "1000px"; // 截圖寬度進一步放寬以匹配大字體
+        if (rows.length <= pageSize) {
+            const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
+            save(canvas.toDataURL(), `${name}.png`);
+        } else {
+            alert(`共 ${rows.length} 筆，系統將分 ${Math.ceil(rows.length/pageSize)} 頁截圖。`);
+            for (let i = 0; i < rows.length; i += pageSize) {
+                rows.forEach((r, idx) => r.style.display = (idx >= i && idx < i + pageSize) ? '' : 'none');
+                const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
+                save(canvas.toDataURL(), `${name}_P${Math.floor(i/pageSize)+1}.png`);
             }
-            row.style.display = 'none'; // 測完隱藏
+            rows.forEach(r => r.style.display = '');
         }
-        if (currentPageRows.length > 0) pages.push(currentPageRows);
-
-        // 3. 逐頁進行截圖與延時下載 (修復 iPhone 下載失敗)
-        if (pages.length > 1) alert(`共偵測到 ${allRows.length} 筆，系統將自動分 ${pages.length} 頁進行高清截圖，請稍候...`);
-
-        for (let i = 0; i < pages.length; i++) {
-            // 僅顯示該頁的行
-            allRows.forEach(r => r.style.display = 'none');
-            pages[i].forEach(r => r.style.display = '');
-
-            // 截圖
-            const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
-            const imgData = canvas.toDataURL("image/png");
-            
-            const fileName = pages.length > 1 ? `${name}_P${i+1}.png` : `${name}.png`;
-            saveImage(imgData, fileName);
-
-            // ⚠️ 關鍵：如果是多頁，每頁間隔 1.5 秒，防止 iPhone 阻擋連續下載
-            if (pages.length > 1) await new Promise(resolve => setTimeout(resolve, 1500));
-        }
-
-        // 4. 還原狀態
-        allRows.forEach(r => r.style.display = '');
-        el.style.width = originalWidth;
-        el.classList.remove('screenshot-mode');
+        el.style.width = ow; el.classList.remove('screenshot-mode');
     }
 
-    function saveImage(data, n) {
-        const a = document.createElement('a');
-        a.href = data;
-        a.download = n;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
-
+    function save(u, n) { const a = document.createElement('a'); a.download = n; a.href = u; a.click(); }
     function togglePinSettings() {
         const area = document.getElementById('pinSettingsArea');
         area.style.display = (area.style.display === 'block') ? 'none' : 'block';
