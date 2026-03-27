@@ -106,7 +106,7 @@
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyOn"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureOn', '境內基金', 10)">📸 拍照截圖 (10筆/頁)</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureOn', '境內基金', 10)">📸 產生截圖預覽 (10筆/頁)</button>
             </div>
         </div>
 
@@ -133,7 +133,7 @@
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyGsam"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureGsam', 'GSAM查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureGsam', 'GSAM查詢', 10)">📸 產生截圖預覽 (10筆/頁)</button>
             </div>
         </div>
 
@@ -156,7 +156,7 @@
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodySicav"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureSicav', 'SICAV查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureSicav', 'SICAV查詢', 10)">📸 產生截圖預覽 (10筆/頁)</button>
             </div>
         </div>
 
@@ -181,7 +181,7 @@
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyNinetyone"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureNinetyone', '晉達查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureNinetyone', '晉達查詢', 10)">📸 產生截圖預覽 (10筆/頁)</button>
             </div>
         </div>
 
@@ -208,7 +208,7 @@
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyIreland"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureIreland', '愛爾蘭查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureIreland', '愛爾蘭查詢', 10)">📸 產生截圖預覽 (10筆/頁)</button>
             </div>
         </div>
 
@@ -235,7 +235,7 @@
                     <table class="table-custom"><thead><tr><th>基金明細</th><th class="code-col">代號</th></tr></thead><tbody id="bodyJanus"></tbody></table>
                     <div class="screenshot-footer">下單代號有◎即表示為「目前不接受新申購」，V即表示為「已上架」基金但無代號</div>
                 </div>
-                <button class="btn btn-shot" onclick="handleScreenshot('captureJanus', '駿利查詢', 10)">📸 拍照截圖 (10筆/頁)</button>
+                <button class="btn btn-shot" onclick="handleScreenshot('captureJanus', '駿利查詢', 10)">📸 產生截圖預覽 (10筆/頁)</button>
             </div>
         </div>
     </div>
@@ -435,27 +435,84 @@
         filters.forEach(el => el.onchange = update);
     }
 
+    // --- 修改後的截圖核心邏輯 (方法三) ---
     async function handleScreenshot(elId, name, pageSize) {
         const el = document.getElementById(elId);
         const rows = Array.from(el.querySelectorAll('tbody tr'));
+        
         el.classList.add('screenshot-mode');
-        const ow = el.style.width; el.style.width = "1000px"; // 截圖寬度進一步放寬以匹配大字體
+        const ow = el.style.width; 
+        el.style.width = "1000px"; // 截圖寬度進一步放寬以匹配大字體
+
+        let dataUrls = [];
+
         if (rows.length <= pageSize) {
             const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
-            save(canvas.toDataURL(), `${name}.png`);
+            dataUrls.push(canvas.toDataURL("image/png"));
         } else {
-            alert(`共 ${rows.length} 筆，系統將分 ${Math.ceil(rows.length/pageSize)} 頁截圖。`);
+            alert(`共 ${rows.length} 筆，系統即將產生 ${Math.ceil(rows.length/pageSize)} 張圖片供您儲存，請稍候...`);
             for (let i = 0; i < rows.length; i += pageSize) {
                 rows.forEach((r, idx) => r.style.display = (idx >= i && idx < i + pageSize) ? '' : 'none');
                 const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
-                save(canvas.toDataURL(), `${name}_P${Math.floor(i/pageSize)+1}.png`);
+                dataUrls.push(canvas.toDataURL("image/png"));
             }
-            rows.forEach(r => r.style.display = '');
+            rows.forEach(r => r.style.display = ''); // 恢復顯示
         }
-        el.style.width = ow; el.classList.remove('screenshot-mode');
+        
+        el.style.width = ow; 
+        el.classList.remove('screenshot-mode');
+
+        // 呼叫全新的預覽層函數
+        showImagesForLongPress(dataUrls);
     }
 
-    function save(u, n) { const a = document.createElement('a'); a.download = n; a.href = u; a.click(); }
+    // --- 全新的 iOS 防呆長按預覽畫面 ---
+    function showImagesForLongPress(dataUrls) {
+        // 建立一個覆蓋全螢幕的預覽區塊
+        const overlay = document.createElement('div');
+        overlay.id = 'screenshot-overlay';
+        overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; overflow-y:auto; text-align:center; padding:20px; box-sizing:border-box;';
+        
+        // 建立浮動的提示與關閉區塊 (Sticky Header)
+        const header = document.createElement('div');
+        header.style.cssText = 'position:sticky; top:0; padding:15px 0; background:rgba(0,0,0,0.85); z-index:10000; margin-bottom:15px; border-bottom:1px solid #444;';
+        header.innerHTML = `
+            <div style="color:white; font-size:18px; font-weight:bold; margin-bottom:12px; line-height:1.5;">
+                📸 已產生 ${dataUrls.length} 張截圖<br>
+                <span style="color:#ffdd57; font-size:15px;">👉 請在下方圖片上「長按」並選擇「儲存到照片」</span>
+            </div>
+            <button onclick="document.getElementById('screenshot-overlay').remove()" style="padding:10px 30px; border-radius:8px; background:white; color:var(--primary-blue); border:none; font-weight:bold; font-size:16px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">完成並關閉</button>
+        `;
+        overlay.appendChild(header);
+
+        // 將陣列中每一張圖片塞進預覽層
+        dataUrls.forEach((url, index) => {
+            const imgContainer = document.createElement('div');
+            imgContainer.style.marginBottom = '30px';
+            
+            // 頁數標示
+            const imgLabel = document.createElement('div');
+            imgLabel.style.color = '#ccc';
+            imgLabel.style.fontSize = '14px';
+            imgLabel.style.marginBottom = '8px';
+            imgLabel.innerText = `— 第 ${index + 1} 頁 —`;
+            imgContainer.appendChild(imgLabel);
+
+            // 圖片本體
+            const img = document.createElement('img');
+            img.src = url;
+            img.style.maxWidth = '100%';
+            img.style.borderRadius = '12px';
+            img.style.boxShadow = '0 5px 25px rgba(0,0,0,0.5)';
+            imgContainer.appendChild(img);
+            
+            overlay.appendChild(imgContainer);
+        });
+
+        // 加到網頁畫面上
+        document.body.appendChild(overlay);
+    }
+
     function togglePinSettings() {
         const area = document.getElementById('pinSettingsArea');
         area.style.display = (area.style.display === 'block') ? 'none' : 'block';
@@ -469,6 +526,7 @@
             });
         }
     }
+    
     function savePins() {
         const checked = Array.from(document.querySelectorAll('.chk-pin:checked')).map(c => c.value);
         localStorage.setItem('pinnedBanks', JSON.stringify(checked));
