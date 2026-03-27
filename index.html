@@ -25,7 +25,6 @@
         }
         .container { max-width: 850px; width: 95%; margin: auto; }
         
-        /* 網頁端響應式預覽樣式 */
         .fund-name { font-size: 1rem; font-weight: bold; line-height: 1.4; }
         .fund-sub-info { font-size: 0.85rem; color: #6c757d; margin-top: 3px; }
         .code-highlight { font-weight: bold; color: var(--danger-red); font-family: 'Consolas', monospace; font-size: 1.15rem; line-height: 1.2; }
@@ -37,17 +36,17 @@
         }
 
         /* ----------------------------------------- */
-        /* 📸 截圖輸出專用巨大化樣式 */
+        /* 📸 截圖輸出專用巨大化樣式 (🚀 針對手機直式最佳化) */
         /* ----------------------------------------- */
-        .screenshot-mode h6.title-label { font-size: 42px !important; font-weight: bold !important; padding: 20px !important; }
-        .screenshot-mode .fund-name { font-size: 40px !important; font-weight: bold !important; line-height: 1.3 !important; }
-        .screenshot-mode .fund-sub-info { font-size: 2.2rem !important; font-weight: bold !important; line-height: 1.4 !important; color: #555 !important; }
-        .screenshot-mode .code-highlight { font-size: 2.6rem !important; font-weight: bold !important; line-height: 1.2 !important; }
-        .screenshot-mode .screenshot-footer { font-size: 1.6rem !important; font-weight: bold !important; padding-top: 20px !important; }
-        .screenshot-mode .code-col { width: 350px !important; }
-        .screenshot-mode table th { font-size: 24px !important; font-weight: bold !important; }
+        .screenshot-mode h6.title-label { font-size: 36px !important; font-weight: bold !important; padding: 16px !important; }
+        .screenshot-mode .fund-name { font-size: 32px !important; font-weight: bold !important; line-height: 1.3 !important; }
+        .screenshot-mode .fund-sub-info { font-size: 22px !important; font-weight: bold !important; line-height: 1.3 !important; color: #555 !important; margin-top: 4px !important;}
+        .screenshot-mode .code-highlight { font-size: 36px !important; font-weight: bold !important; line-height: 1.2 !important; }
+        .screenshot-mode .screenshot-footer { font-size: 20px !important; font-weight: bold !important; padding-top: 15px !important; }
+        .screenshot-mode .code-col { width: 300px !important; } /* 代號欄位稍微縮緊 */
+        .screenshot-mode table th { font-size: 26px !important; font-weight: bold !important; padding: 15px !important; }
+        .screenshot-mode tbody td { padding: 15px 10px !important; } /* 縮減上下留白，多塞幾列 */
 
-        /* 通用表格設定 */
         .table-custom { width: 100%; border-collapse: collapse; background: white; table-layout: auto; }
         .table-custom thead th { background: var(--primary-blue); color: white; padding: 10px 8px; white-space: nowrap; }
         .table-custom tbody td { padding: 12px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
@@ -61,7 +60,6 @@
         #pinSettingsArea { display: none; background: #fff; border: 2px solid var(--primary-blue); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .screenshot-footer { font-size: 0.75rem; color: #666; border-top: 1px solid #eee; padding-top: 8px; margin-top: 10px; }
         
-        /* 💡 新增：操作按鈕區塊樣式 */
         .action-buttons { display: flex; gap: 10px; margin-top: 15px; }
         .btn-shot { background: var(--primary-blue); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; flex: 1; transition: 0.2s; }
         .btn-zip { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; flex: 1; transition: 0.2s; }
@@ -270,7 +268,6 @@
     let datasets = { On: [], Gsam: [], Sicav: [], Ninetyone: [], Ireland: [], Janus: [] };
     let allBanks = [];
 
-    // --- 智慧格式化：處理多組代號斷行 ---
     function formatOrderCode(code) {
         if (!code) return "";
         let parts = String(code).split(/\s+/).filter(p => p.trim().length > 0);
@@ -460,15 +457,13 @@
         filters.forEach(el => el.onchange = update);
     }
 
-    // --- 💡 核心修改：動態高度偵測 + ZIP 支援 ---
+    // --- 🚀 核心修改：打造 9:16 手機直式比例 ---
     async function handleScreenshot(elId, name, mode) {
-        // 加入 Loading 遮罩防呆
         const loading = document.createElement('div');
         loading.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:99999; display:flex; justify-content:center; align-items:center; color:white; font-size:20px; font-weight:bold; flex-direction:column; text-align:center; padding:20px;';
         loading.innerHTML = '<div>⏳ 正在運算排版與產生圖片，請稍候...</div><div style="font-size:15px; margin-top:10px; color:#ffdd57;">(若資料較多，可能需要耗時幾秒鐘)</div>';
         document.body.appendChild(loading);
         
-        // 確保 UI 有時間畫出 Loading 遮罩才開始鎖死主執行緒
         await new Promise(r => setTimeout(r, 100));
 
         const el = document.getElementById(elId);
@@ -476,72 +471,60 @@
         
         el.classList.add('screenshot-mode');
         const ow = el.style.width; 
-        el.style.width = "1000px";
+        
+        // 💡 調整：寬度設為 900px
+        el.style.width = "900px";
 
-        // 動態計算分頁：如果畫面排版高度超過 1040px，就切到下一頁
         let pages = [];
         let currentRowGroup = [];
         
-        // 先隱藏所有列
         rows.forEach(r => r.style.display = 'none');
 
         for (let i = 0; i < rows.length; i++) {
-            rows[i].style.display = ''; // 試著顯示這一列
+            rows[i].style.display = ''; 
             currentRowGroup.push(rows[i]);
             
-            // 如果加上這列後，高度超過 1040 且這個群組已經有其他列了 (防止單列本身就超高卡死)
-            if (el.offsetHeight > 1040 && currentRowGroup.length > 1) {
-                rows[i].style.display = 'none'; // 把剛才那列隱藏回去
-                currentRowGroup.pop(); // 移出當前群組
-                pages.push(currentRowGroup); // 把計算好的這頁推入 pages 陣列
+            // 💡 調整：高度限制拉長到 1600px，創造 900x1600 (9:16) 的完美直式手機比例
+            if (el.offsetHeight > 1600 && currentRowGroup.length > 1) {
+                rows[i].style.display = 'none'; 
+                currentRowGroup.pop(); 
+                pages.push(currentRowGroup); 
                 
-                // 將剛才儲存的那頁全部隱藏
                 currentRowGroup.forEach(r => r.style.display = 'none');
                 
-                // 把這列當作下一頁的第一筆
                 currentRowGroup = [rows[i]];
                 rows[i].style.display = ''; 
             }
         }
-        // 如果迴圈跑完還有剩下沒超過高度的列，也加進去
         if (currentRowGroup.length > 0) {
             pages.push(currentRowGroup);
         }
 
         let dataUrls = [];
         
-        // 針對每一頁產生圖片
         for (let i = 0; i < pages.length; i++) {
-            rows.forEach(r => r.style.display = 'none'); // 清空畫面
-            pages[i].forEach(r => r.style.display = ''); // 只顯示該頁的列
+            rows.forEach(r => r.style.display = 'none'); 
+            pages[i].forEach(r => r.style.display = ''); 
             
-            // scale: 2 代表產出的圖片解析度會是 DOM 尺寸的兩倍 (例如 DOM 寬度 1000px -> 圖片會是 2000px 解析度)
             const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
             dataUrls.push(canvas.toDataURL("image/png"));
         }
         
-        // 恢復原始狀態
         rows.forEach(r => r.style.display = '');
         el.style.width = ow; 
         el.classList.remove('screenshot-mode');
 
-        // 移除 Loading 遮罩
         document.body.removeChild(loading);
 
-        // --- 根據選擇的模式執行後續動作 ---
         if (mode === 'preview') {
-            // 方法三：在畫面上顯示給 iOS 預覽長按
             showImagesForLongPress(dataUrls);
         } else if (mode === 'zip') {
-            // 方法一：打包成 ZIP 下載
             if (dataUrls.length === 1) {
-                // 如果只有一頁，直接下載圖片比較快，不用包 ZIP
                 saveUrl(dataUrls[0], `${name}.png`);
             } else {
                 const zip = new JSZip();
                 dataUrls.forEach((url, index) => {
                     const base64Data = url.split(',')[1];
-                    // 檔名補零，例如 01, 02，排序才不會亂
                     const pageNum = String(index + 1).padStart(2, '0');
                     zip.file(`${name}_P${pageNum}.png`, base64Data, {base64: true});
                 });
@@ -552,7 +535,6 @@
         }
     }
 
-    // 觸發下載檔案的功能
     function saveUrl(u, n) { 
         const a = document.createElement('a'); 
         a.download = n; 
@@ -560,7 +542,6 @@
         a.click(); 
     }
 
-    // iOS 防呆長按預覽畫面
     function showImagesForLongPress(dataUrls) {
         const overlay = document.createElement('div');
         overlay.id = 'screenshot-overlay';
