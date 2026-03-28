@@ -47,7 +47,6 @@
         .screenshot-mode table th { font-size: 26px !important; font-weight: bold !important; padding: 15px !important; }
         .screenshot-mode tbody td { padding: 15px 10px !important; }
 
-        /* 表格排版改為 fixed，讓 colgroup 能夠精準控制欄寬 */
         .table-custom { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
         .table-custom thead th { background: var(--primary-blue); color: white; padding: 10px 8px; white-space: nowrap; }
         .table-custom tbody td { padding: 12px 8px; border-bottom: 1px solid #eee; vertical-align: middle; overflow: hidden; }
@@ -476,7 +475,7 @@
         filters.forEach(el => el.onchange = update);
     }
 
-    // --- 🚀 智慧寬度偵測與自動排版截圖核心 ---
+    // --- 🚀 智慧寬度偵測與自動排版截圖核心 (已修正寬度還原 Bug) ---
     async function handleScreenshot(elId, name, mode) {
         const loading = document.createElement('div');
         loading.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:99999; display:flex; justify-content:center; align-items:center; color:white; font-size:20px; font-weight:bold; flex-direction:column; text-align:center; padding:20px;';
@@ -488,55 +487,52 @@
         const el = document.getElementById(elId);
         const rows = Array.from(el.querySelectorAll('tbody tr'));
         
-        // 動態抓取對應 Tab 的 colgroup ID
         const suffix = elId.replace('capture', '');
         const colName = document.getElementById(`colName${suffix}`);
         const colCode = document.getElementById(`colCode${suffix}`);
 
         el.classList.add('screenshot-mode');
-        const ow = el.style.width; 
-        el.style.width = "900px"; // 固定截圖寬度 900px
+        
+        // 🌟 修正重點：把原本的寬度設定「存起來」
+        const originalElWidth = el.style.width; 
+        const originalColNameWidth = colName.style.width;
+        const originalColCodeWidth = colCode.style.width;
+
+        el.style.width = "900px"; 
 
         // --- 🧪 智慧寬度計算階段 ---
         const names = el.querySelectorAll('.fund-name');
-        names.forEach(n => n.style.whiteSpace = 'nowrap'); // 暫時強制不換行以測量真實寬度
+        names.forEach(n => n.style.whiteSpace = 'nowrap'); 
         
         let maxNameWidth = 0;
         rows.forEach(r => {
-            // 只測量「目前有顯示在畫面上」的資料
             if(r.style.display !== 'none') {
                 const nameEl = r.querySelector('.fund-name');
                 maxNameWidth = Math.max(maxNameWidth, nameEl.scrollWidth);
             }
         });
 
-        // 名稱欄位最窄 400px，最寬 600px，加上 40px 的安全邊距
         let finalNameWidth = Math.min(600, Math.max(400, maxNameWidth + 40));
         let finalCodeWidth = 900 - finalNameWidth;
 
-        // 套用動態計算出來的欄寬
         colName.style.width = `${finalNameWidth}px`;
         colCode.style.width = `${finalCodeWidth}px`;
 
-        // 恢復正常換行設定
         names.forEach(n => n.style.whiteSpace = 'normal');
 
         // --- 📸 分頁與拍照階段 ---
         let pages = [];
         let currentRowGroup = [];
         
-        // 記下原本的顯示狀態並先全部隱藏
         const originalDisplay = rows.map(r => r.style.display);
         rows.forEach(r => r.style.display = 'none');
 
         for (let i = 0; i < rows.length; i++) {
-            // 如果原本就因為沒打勾而被隱藏，就跳過不處理
             if (originalDisplay[i] === 'none') continue;
 
             rows[i].style.display = ''; 
             currentRowGroup.push(rows[i]);
             
-            // 高度上限 1600px
             if (el.offsetHeight > 1600 && currentRowGroup.length > 1) {
                 rows[i].style.display = 'none'; 
                 currentRowGroup.pop(); 
@@ -561,11 +557,15 @@
             dataUrls.push(canvas.toDataURL("image/png"));
         }
         
-        // 恢復原本的顯示狀態
+        // --- 🧹 復原階段 (解決撐破版面的問題) ---
         rows.forEach((r, idx) => r.style.display = originalDisplay[idx]);
-        el.style.width = ow; 
-        el.classList.remove('screenshot-mode');
         
+        // 🌟 修正重點：把寬度全部「還原」回去
+        el.style.width = originalElWidth; 
+        colName.style.width = originalColNameWidth; 
+        colCode.style.width = originalColCodeWidth; 
+        
+        el.classList.remove('screenshot-mode');
         document.body.removeChild(loading);
 
         if (mode === 'preview') {
